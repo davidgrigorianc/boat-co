@@ -16,8 +16,15 @@ class BoatModelFactory extends Factory
      */
     public function definition(): array
     {
+        $models = [
+            $this->faker->numberBetween(1, 1000) . $this->faker->randomLetter(),
+            $this->faker->numberBetween(1, 1000) . strtoupper($this->faker->randomLetter()) . strtoupper($this->faker->randomLetter()),
+            $this->faker->numberBetween(1, 1000) . strtoupper($this->faker->randomLetter()),
+            $this->faker->numberBetween(1, 1000),
+        ];
+
         return [
-            'name' => $this->faker->companySuffix(),
+            'name' => $this->faker->randomElement($models),
         ];
     }
 }

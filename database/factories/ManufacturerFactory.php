@@ -16,8 +16,18 @@ class ManufacturerFactory extends Factory
      */
     public function definition(): array
     {
+        $manufacturers = [
+            'Oceano', 'Oysterr', 'Azimut', 'Tahity', 'SeaRay', 'Bayliner', 'Bertram',
+            'Cobalt', 'Grady White', 'Regal', 'Chris Craft', 'Moomba', 'MasterCraft',
+            'Rinker', 'Four Winns', 'Mako', 'Boston Whaler', 'Malibu', 'Lund', 'Tracker',
+            'Sunseeker', 'Hatteras', 'Princess', 'Jeanneau', 'Beneteau', 'Fairline',
+            'Hunter', 'Lagoon', 'Catalina', 'Tartan', 'Freedom', 'Silverton', 'MacGregor',
+            'Sailfish', 'Key West', 'Crownline', 'Cigarette', 'Donzi', 'Chaparral', 'SeaPro',
+            'Cushman', 'WoodenBoat', 'Pursuit', 'Albemarle', 'Caliber', 'Tidewater', 'Contender'
+        ];
+
         return [
-            'name' => $this->faker->company,
+            'name' => $this->faker->unique()->randomElement($manufacturers),
         ];
     }
 }

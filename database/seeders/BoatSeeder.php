@@ -29,12 +29,12 @@ class BoatSeeder extends Seeder
             }
 
             $numImages = rand(2, 6);
-
             for ($i = 0; $i < $numImages; $i++) {
                 $imageData = BoatImage::factory()->definition();
                 $imageNumber = $i + 1;
                 $text = "Boat #{$boat->id} - Image {$imageNumber}";
                 $imageData['boat_id'] = $boat->id;
+                $imageData['is_primary'] = $i === 0 ? 1 : 0;
                 $imageData['path'] = BoatImage::factory()->getImagePathByBoatIdAndText( $text );
                 $imageData['created_at'] = now();
                 $imageData['updated_at'] = now();
