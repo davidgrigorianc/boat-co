@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetBoatModelsRequest;
+use App\Http\Requests\GetBoatsRequest;
 use App\Http\Resources\BoatDetailResource;
 use App\Http\Resources\BoatResource;
 use App\Repositories\Contracts\BoatRepositoryInterface;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
@@ -23,10 +24,10 @@ class BoatController extends Controller
     /**
      * Fetch filtered boats
      *
-     * @param Request $request
+     * @param GetBoatsRequest $request
      * @return AnonymousResourceCollection|JsonResponse
      */
-    public function index(Request $request): AnonymousResourceCollection|JsonResponse
+    public function index(GetBoatsRequest $request): AnonymousResourceCollection|JsonResponse
     {
         try {
             $boats = $this->boatRepository->getFilteredBoats($request->all());
@@ -73,10 +74,10 @@ class BoatController extends Controller
     /**
      * Get list of boat models by manufacturer
      *
-     * @param Request $request
+     * @param GetBoatModelsRequest $request
      * @return JsonResponse
      */
-    public function getBoatModels(Request $request): JsonResponse
+    public function getBoatModels(GetBoatModelsRequest $request): JsonResponse
     {
         $models = $this->boatRepository->getBoatModelsByManufacturerId($request->manufacturer_id);
         return response()->json($models);
