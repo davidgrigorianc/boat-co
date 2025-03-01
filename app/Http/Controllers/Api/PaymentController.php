@@ -18,7 +18,7 @@ class PaymentController extends Controller
         $boat = Boat::findOrFail($request->boat_id);
         $boatName = "{$boat->year} {$boat->boat_model?->manufacturer?->name} {$boat->boat_model->name}";
 
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        Stripe::setApiKey(config('app_config.stripe.secret'));
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -33,8 +33,8 @@ class PaymentController extends Controller
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => env('APP_URL') . '/success?session_id={CHECKOUT_SESSION_ID}&boat_name=' . urlencode($boatName) . '&amount=' . urlencode($boat->price),
-            'cancel_url' => env('APP_URL') . '/boats/' . $boat->id,
+            'success_url' => config('app_config.app_url') . '/success?session_id={CHECKOUT_SESSION_ID}&boat_name=' . urlencode($boatName) . '&amount=' . urlencode($boat->price),
+            'cancel_url' => config('app_config.app_url') . '/boats/' . $boat->id,
             'metadata' => [
                 'boat_id' => $boat->id,
                 'amount' => $boat->price,
