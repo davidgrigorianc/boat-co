@@ -42,9 +42,10 @@ This is the backend API for Boat Co test task, built with Laravel.
    DB_PASSWORD=
    ```
 
-6. **Run database migrations:**
+6. **Run database migrations and seeders:**
    ```sh
    php artisan migrate
+   php artisan db:seed
    ```
 
 7. **Run the development server:**
