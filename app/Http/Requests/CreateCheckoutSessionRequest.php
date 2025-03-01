@@ -20,7 +20,7 @@ class CreateCheckoutSessionRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'boat_id' => 'required|exists:boats,id',
@@ -28,7 +28,7 @@ class CreateCheckoutSessionRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
+    public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
             $boat = Boat::find($this->boat_id);

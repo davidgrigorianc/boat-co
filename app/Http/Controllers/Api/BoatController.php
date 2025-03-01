@@ -2,61 +2,83 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Resources\BoatDetailResource;
-use App\Models\Boat;
-use App\Models\BoatModel;
-use App\Models\Manufacturer;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BoatDetailResource;
 use App\Http\Resources\BoatResource;
+use App\Repositories\Contracts\BoatRepositoryInterface;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Log;
 
 class BoatController extends Controller
 {
-    public function index(Request $request)
+    protected BoatRepositoryInterface $boatRepository;
+
+    public function __construct(BoatRepositoryInterface $boatRepository)
+    {
+        $this->boatRepository = $boatRepository;
+    }
+
+    /**
+     * Fetch filtered boats
+     *
+     * @param Request $request
+     * @return AnonymousResourceCollection|JsonResponse
+     */
+    public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
         try {
-            $query = Boat::filterByStatus('available')
-                ->filterByCategory($request->boat_type)
-                ->filterByCondition($request->condition)
-                ->filterByBoatModel($request->boat_model_id)
-                ->filterByLength($request->length ?? [])
-                ->filterByYear($request->year ?? [])
-                ->filterByPrice($request->price ?? [])
-                ->orderByColumn($request->sort ?? 'created_at', $request->direction ?? 'asc');
-
-            if (!$request->boat_model_id) {
-                $query->filterByManufacturer($request->manufacturer_id);
-            }
-            $boats = $query->paginate($request->get('per_page', 9));
-
+            $boats = $this->boatRepository->getFilteredBoats($request->all());
             return BoatResource::collection($boats);
-        } catch (\Exception $e) {
-            Log::error('Error fetching boats: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('Error fetching boats', ['error' => $e->getMessage()]);
+
             return response()->json([
-                'error' => 'An error occurred while fetching boats.',
-                'message' => $e->getMessage(),
+                'error' => 'Something went wrong. Please try again later.'
             ], 500);
         }
     }
 
-
-
-    public function show($id)
+    /**
+     * Show boat details
+     *
+     * @param int $id
+     * @return BoatDetailResource|JsonResponse
+     */
+    public function show(int $id): BoatDetailResource|JsonResponse
     {
-        $boat = Boat::findOrFail($id);
-
-        return new BoatDetailResource($boat);
+        try {
+            $boat = $this->boatRepository->getBoatById($id);
+            return new BoatDetailResource($boat);
+        } catch (\Throwable $e) {
+            Log::error('Error fetching boat details', ['error' => $e->getMessage()]);
+            return response()->json([
+                'error' => 'Boat not found.'
+            ], 404);
+        }
     }
 
-    public function getManufacturers()
+    /**
+     * Get list of manufacturers
+     *
+     * @return JsonResponse
+     */
+    public function getManufacturers(): JsonResponse
     {
-        return response()->json(Manufacturer::select('id', 'name')->get());
+        $manufacturers = $this->boatRepository->getManufacturers();
+        return response()->json($manufacturers);
     }
 
-    public function getBoatModels(Request $request)
+    /**
+     * Get list of boat models by manufacturer
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function getBoatModels(Request $request): JsonResponse
     {
-        $models = BoatModel::where('manufacturer_id', $request->manufacturer_id)->select('id', 'name')->get();
+        $models = $this->boatRepository->getBoatModelsByManufacturerId($request->manufacturer_id);
         return response()->json($models);
     }
 }

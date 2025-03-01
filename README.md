@@ -67,6 +67,10 @@ This is the backend API for Boat Co test task, built with Laravel.
 
 ## API Endpoints
 
+- `GET /boats`               – Fetch Boats
+- `POST /boats/{id}`         – Get Boat information by ID
+- `POST /manufacturers`      – Get Manufacturer list
+- `POST /payment-checkout`   – Create payment checkout session
 - `POST /api/stripe/webhook` – Handle Stripe webhooks
 
 ## Notes

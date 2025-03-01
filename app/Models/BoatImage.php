@@ -3,7 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Database\Factories\BoatImageFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BoatImage extends Model
 {
@@ -22,7 +22,7 @@ class BoatImage extends Model
         });
     }
 
-    public function boat()
+    public function boat(): BelongsTo
     {
         return $this->belongsTo(Boat::class);
     }

@@ -10,7 +10,12 @@ class EngineFactory extends Factory
 {
     protected $model = Engine::class;
 
-    public function definition()
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         return [
             'boat_id' => Boat::factory(),
@@ -22,13 +27,5 @@ class EngineFactory extends Factory
             'fuel_type' => $this->faker->randomElement(['Diesel', 'Petrol', 'Electric']),
             'drive_type' => $this->faker->randomElement(['Pod Drive', 'Air Propeller','Direct Drive', null]),
         ];
-    }
-
-    public function createMultipleEnginesForBoat($boat, $num){
-        for ($i = 0; $i < $num; $i++) {
-            $this->create([
-                'boat_id' => $boat->id,
-            ]);
-        }
     }
 }

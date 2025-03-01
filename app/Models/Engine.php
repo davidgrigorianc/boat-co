@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Engine extends Model
 {
@@ -13,8 +14,7 @@ class Engine extends Model
         'boat_id', 'make', 'model', 'type', 'hours', 'power', 'fuel_type', 'drive_type'
     ];
 
-
-    public function boat()
+    public function boat(): BelongsTo
     {
         return $this->belongsTo(Boat::class);
     }

@@ -33,24 +33,14 @@ class BoatImageFactory extends Factory
     }
 
     /**
-     * Create multiple images for a boat with one marked as primary
-     *
-     * @param Boat $boat
-     * @param int $numImages
-     * @return void
+     * Get image path by text
+     * @param string $text
+     * @return string
      */
-    public function createMultipleImagesForBoat(Boat $boat, int $numImages = 5)
+    public function getImagePathByBoatIdAndText(string $text): string
     {
-        for ($i = 1; $i <= $numImages; $i++) {
-            $randomColor = $this->randomHexColor();
-            $text = "Boat #{$boat->id} - Image {$i}";
-
-            $this->create([
-                'boat_id' => $boat->id,
-                'is_primary' => $i === 1,
-                'path' => "https://dummyimage.com/800x600/{$randomColor}/fff&text=" . urlencode($text),
-            ]);
-        }
+        $randomColor = $this->randomHexColor();
+        return "https://dummyimage.com/800x600/{$randomColor}/fff&text=" . urlencode($text);
     }
 
     /**
