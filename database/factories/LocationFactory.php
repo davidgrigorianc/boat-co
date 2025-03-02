@@ -3,12 +3,10 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Faker\Factory as FakerFactory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Location>
  */
-
 class LocationFactory extends Factory
 {
     /**
@@ -18,39 +16,40 @@ class LocationFactory extends Factory
      */
     public function definition(): array
     {
-        $locales = ['en_US', 'ru_RU', 'fr_FR', 'de_DE', 'es_ES', 'it_IT'];
-        $locale = $locales[array_rand($locales)];
-
-        $faker = FakerFactory::create($locale);
-
         $countries = [
-            'US' => ['name' => 'United States', 'cities' => ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix']],
-            'RU' => ['name' => 'Russia', 'cities' => ['Moscow', 'Saint Petersburg', 'Novosibirsk', 'Yekaterinburg', 'Nizhny Novgorod']],
-            'DE' => ['name' => 'Germany', 'cities' => ['Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne']],
-            'FR' => ['name' => 'France', 'cities' => ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice']],
-            'ES' => ['name' => 'Spain', 'cities' => ['Madrid', 'Barcelona', 'Valencia', 'Sevilla', 'Zaragoza']],
-            'IT' => ['name' => 'Italy', 'cities' => ['Rome', 'Milan', 'Naples', 'Turin', 'Palermo']],
-            'GB' => ['name' => 'United Kingdom', 'cities' => ['London', 'Manchester', 'Birmingham', 'Glasgow', 'Liverpool']],
-            'JP' => ['name' => 'Japan', 'cities' => ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Sapporo']],
-            'IN' => ['name' => 'India', 'cities' => ['Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Chennai']],
-            'BR' => ['name' => 'Brazil', 'cities' => ['Sao Paulo', 'Rio de Janeiro', 'Salvador', 'Brasilia', 'Fortaleza']],
-            'CA' => ['name' => 'Canada', 'cities' => ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa']],
-            'AU' => ['name' => 'Australia', 'cities' => ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide']],
-            'MX' => ['name' => 'Mexico', 'cities' => ['Mexico City', 'Guadalajara', 'Monterrey', 'Cancun', 'Puebla']],
+            'US' => ['name' => 'United States', 'cities' => [
+                ['name' => 'New York', 'lat' => 40.7128, 'lng' => -74.0060],
+                ['name' => 'Los Angeles', 'lat' => 34.0522, 'lng' => -118.2437],
+                ['name' => 'Chicago', 'lat' => 41.8781, 'lng' => -87.6298],
+                ['name' => 'Houston', 'lat' => 29.7604, 'lng' => -95.3698],
+                ['name' => 'Phoenix', 'lat' => 33.4484, 'lng' => -112.0740],
+            ]],
+            'RU' => ['name' => 'Russia', 'cities' => [
+                ['name' => 'Moscow', 'lat' => 55.7558, 'lng' => 37.6173],
+                ['name' => 'Saint Petersburg', 'lat' => 59.9343, 'lng' => 30.3351],
+                ['name' => 'Novosibirsk', 'lat' => 55.0084, 'lng' => 82.9357],
+                ['name' => 'Yekaterinburg', 'lat' => 56.8389, 'lng' => 60.6057],
+                ['name' => 'Nizhny Novgorod', 'lat' => 56.2965, 'lng' => 43.9361],
+            ]],
+            'DE' => ['name' => 'Germany', 'cities' => [
+                ['name' => 'Berlin', 'lat' => 52.5200, 'lng' => 13.4050],
+                ['name' => 'Munich', 'lat' => 48.1351, 'lng' => 11.5820],
+                ['name' => 'Hamburg', 'lat' => 53.5511, 'lng' => 9.9937],
+                ['name' => 'Frankfurt', 'lat' => 50.1109, 'lng' => 8.6821],
+                ['name' => 'Cologne', 'lat' => 50.9375, 'lng' => 6.9603],
+            ]],
         ];
 
         $countryCode = array_rand($countries);
-        $countryName = $countries[$countryCode]['name'];
-        $cities = $countries[$countryCode]['cities'];
-        $city = $cities[array_rand($cities)];
+        $country = $countries[$countryCode];
+        $cityData = $country['cities'][array_rand($country['cities'])];
 
         return [
-            'country' => $countryName,
-            'city' => $city,
+            'country' => $country['name'],
+            'city' => $cityData['name'],
             'country_code' => $countryCode,
-            'latitude' => $faker->latitude,
-            'longitude' => $faker->longitude,
+            'latitude' => $cityData['lat'],
+            'longitude' => $cityData['lng'],
         ];
     }
 }
-
