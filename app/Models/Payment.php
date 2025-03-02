@@ -13,6 +13,7 @@ class Payment extends Model
         'stripe_session_id',
         'amount',
         'currency',
-        'status'
+        'status',
+        'transaction_id'
     ];
 }

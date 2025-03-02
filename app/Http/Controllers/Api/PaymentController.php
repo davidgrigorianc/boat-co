@@ -13,7 +13,7 @@ use App\Models\Boat;
 
 class PaymentController extends Controller
 {
-    public function createCheckoutSession(CreateCheckoutSessionRequest $request)
+    public function createCheckoutSession(CreateCheckoutSessionRequest $request): \Illuminate\Http\JsonResponse
     {
         $boat = Boat::findOrFail($request->boat_id);
         $boatName = "{$boat->year} {$boat->boat_model?->manufacturer?->name} {$boat->boat_model->name}";
@@ -60,30 +60,75 @@ class PaymentController extends Controller
 
     public function handleWebhook(Request $request)
     {
-        $endpoint_secret = env('STRIPE_WEBHOOK_SECRET');
-        $sig_header = $request->header('Stripe-Signature');
+        Log::debug('Stripe Webhook Received', [
+            'headers' => $request->headers->all(),
+            'payload' => $request->all(),
+        ]);
+
+        $endpointSecret = config('app_config.stripe.webhook_key');
+        $signatureHeader = $request->header('Stripe-Signature');
         $payload = $request->getContent();
 
-        try {
-            $event = Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-        } catch (\Exception $e) {
-            Log::error("Stripe Webhook Error: " . $e->getMessage());
-            return response()->json(['error' => 'Invalid webhook signature'], 400);
+        if (!$signatureHeader || !$payload) {
+            Log::error('Stripe Webhook: Missing signature or payload.');
+            return response()->json(['error' => 'Invalid request'], 400);
         }
 
-        if ($event->type === 'checkout.session.completed') {
-            $session = $event->data->object;
-            $payment = Payment::where('transaction_id', $session->id)->first();
+        try {
+            $event = Webhook::constructEvent($payload, $signatureHeader, $endpointSecret);
+        } catch (\Exception $e) {
+            Log::error("Stripe Webhook: Signature verification failed - " . $e->getMessage());
+            return response()->json(['error' => 'Invalid signature'], 400);
+        }
 
-            if ($payment) {
-                $payment->update(['status' => 'paid']);
+        switch ($event->type) {
+            case 'checkout.session.completed':
+                $this->handleCheckoutSessionCompleted($event->data->object);
+                break;
 
-                Boat::where('id', $payment->boat_id)->update(['status' => 'sold']);
+            case 'payment_intent.succeeded':
+                $this->handlePaymentIntentSucceeded($event->data->object);
+                break;
 
-                Log::info("Payment successful. Boat ID {$payment->boat_id} marked as sold.");
-            }
+            default:
+                Log::info("Unhandled event type: {$event->type}");
         }
 
         return response()->json(['status' => 'success']);
+    }
+
+    private function handleCheckoutSessionCompleted($session): void
+    {
+        Log::info("Processing checkout.session.completed", ['session_id' => $session->id]);
+
+        $payment = Payment::where('transaction_id', $session->id)->first();
+        if (!$payment) {
+            Log::warning("Payment record not found for session: {$session->id}");
+            return;
+        }
+
+        $payment->update(['status' => 'paid']);
+
+        $boat = Boat::find($payment->boat_id);
+        if ($boat) {
+            $boat->update(['status' => 'sold']);
+            Log::info("Boat ID {$payment->boat_id} marked as sold.");
+        } else {
+            Log::warning("Boat ID {$payment->boat_id} not found.");
+        }
+    }
+
+    private function handlePaymentIntentSucceeded($paymentIntent): void
+    {
+        Log::info("Processing payment_intent.succeeded", ['intent_id' => $paymentIntent->id]);
+
+        $payment = Payment::where('transaction_id', $paymentIntent->id)->first();
+        if (!$payment) {
+            Log::warning("Payment record not found for intent: {$paymentIntent->id}");
+            return;
+        }
+
+        $payment->update(['status' => 'paid']);
+        Log::info("Payment {$payment->id} marked as paid.");
     }
 }

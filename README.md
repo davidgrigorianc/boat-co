@@ -7,7 +7,7 @@ This is the backend API for Boat Co test task, built with Laravel.
 - Composer
 - MySQL
 - Node.js 
-- Ngrok (for local Stripe webhook testing)
+- Stripe CLI (for local Stripe webhook testing)
 
 ## Installation
 
@@ -61,11 +61,20 @@ This is the backend API for Boat Co test task, built with Laravel.
   STRIPE_PUBLIC=your_public_key
   ```
 
-- **Run Webhooks with Ngrok** (for Stripe, etc.):
-  ```sh
-  ngrok http 8000
-  ```
+- **Run Webhooks with Stripe CLI** :
 
+  **Forward localhost to listen stripe webhooks**
+   ```sh
+   stripe listen --forward-to localhost:8000/api/stripe/webhook
+   ```
+  **Response should be**
+- > Ready! You are using Stripe API Version [2025-02-24.acacia]. Your webhook signing secret is whsec_XXX
+
+  **Add webhook to .env**
+  ```
+  STRIPE_WEBHOOK_KEY=whsec_XXX
+  ```
+    
 ## API Endpoints
 
 - `GET /boats`               – Fetch Boats
